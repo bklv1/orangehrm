@@ -1,5 +1,8 @@
 FROM php:8.3-apache-bookworm
 
+ENV OHRM_VERSION 5.8
+ENV OHRM_MD5 32c08e6733430414a5774f9fefb71902
+
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -20,9 +23,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get purge -y --auto-remove \
     && rm -rf /var/cache/apt /var/lib/apt/lists/*
 
-# Инсталирайте Composer
-RUN curl -sS https://getcomposer.org/installer | php -- \
-    --install-dir=/usr/local/bin --filename=composer
+# Изтегли pre-built release (с компилирани Vue assets)
+RUN curl -fSL -o /tmp/orangehrm.zip \
+    "https://sourceforge.net/projects/orangehrm/files/stable/${OHRM_VERSION}/orangehrm-${OHRM_VERSION}.zip" \
+    && echo "${OHRM_MD5} /tmp/orangehrm.zip" | md5sum -c - \
+    && unzip -q /tmp/orangehrm.zip -d /tmp/ \
+    && rm -rf /var/www/html \
+    && mv /tmp/orangehrm-${OHRM_VERSION} /var/www/html \
+    && rm -f /tmp/orangehrm.zip
+
+# Копирай repo кода върху release (бъгове влизат тук)
+COPY src/ /var/www/html/src/
 
 RUN { \
     echo 'opcache.memory_consumption=128'; \
@@ -35,12 +46,9 @@ RUN { \
 
 RUN a2enmod rewrite
 
-COPY . /var/www/html/
-
-RUN cd /var/www/html/src && composer install --no-dev --optimize-autoloader
-
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/lib/confs \
+    && chmod -R 775 \
+       /var/www/html/lib/confs \
        /var/www/html/src/cache \
        /var/www/html/src/log \
        /var/www/html/src/config
