@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libldap2-dev \
     libicu-dev \
     unzip \
+    curl \
+    git \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-configure ldap \
        --with-libdir=lib/$(uname -m)-linux-gnu/ \
@@ -17,6 +19,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
        gd opcache intl pdo_mysql zip ldap \
     && apt-get purge -y --auto-remove \
     && rm -rf /var/cache/apt /var/lib/apt/lists/*
+
+# Инсталирайте Composer
+RUN curl -sS https://getcomposer.org/installer | php -- \
+    --install-dir=/usr/local/bin --filename=composer
 
 RUN { \
     echo 'opcache.memory_consumption=128'; \
@@ -30,6 +36,8 @@ RUN { \
 RUN a2enmod rewrite
 
 COPY . /var/www/html/
+
+RUN cd /var/www/html/src && composer install --no-dev --optimize-autoloader
 
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/lib/confs \
