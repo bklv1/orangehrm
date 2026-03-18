@@ -1,7 +1,7 @@
 FROM php:8.3-apache-bookworm
 
-ENV OHRM_VERSION 5.8
-ENV OHRM_MD5 32c08e6733430414a5774f9fefb71902
+ENV OHRM_VERSION=5.8
+ENV OHRM_MD5=32c08e6733430414a5774f9fefb71902
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libicu-dev \
     unzip \
     curl \
-    git \
+    default-mysql-server \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-configure ldap \
        --with-libdir=lib/$(uname -m)-linux-gnu/ \
@@ -23,7 +23,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get purge -y --auto-remove \
     && rm -rf /var/cache/apt /var/lib/apt/lists/*
 
-# Изтегли pre-built release (с компилирани Vue assets)
 RUN curl -fSL -o /tmp/orangehrm.zip \
     "https://sourceforge.net/projects/orangehrm/files/stable/${OHRM_VERSION}/orangehrm-${OHRM_VERSION}.zip" \
     && echo "${OHRM_MD5} /tmp/orangehrm.zip" | md5sum -c - \
@@ -32,7 +31,6 @@ RUN curl -fSL -o /tmp/orangehrm.zip \
     && mv /tmp/orangehrm-${OHRM_VERSION} /var/www/html \
     && rm -f /tmp/orangehrm.zip
 
-# Копирай repo кода върху release (бъгове влизат тук)
 COPY src/ /var/www/html/src/
 
 RUN { \
@@ -53,4 +51,9 @@ RUN chown -R www-data:www-data /var/www/html \
        /var/www/html/src/log \
        /var/www/html/src/config
 
+COPY docker-entrypoint-custom.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint-custom.sh
+
 EXPOSE 80
+
+CMD ["/usr/local/bin/docker-entrypoint-custom.sh"]
