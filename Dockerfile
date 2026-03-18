@@ -29,7 +29,6 @@ RUN { \
 
 RUN a2enmod rewrite
 
-# Копира кода от репото вместо да го изтегля
 COPY . /var/www/html/
 
 RUN chown -R www-data:www-data /var/www/html \
