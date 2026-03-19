@@ -26,4 +26,12 @@
     Header set X-Content-Type-Options nosniff
     Header set X-XSS-Protection "1; mode=block"
 
+    # CORS for Swagger UI
+    Header set Access-Control-Allow-Origin "https://orangehrm-xoq7.onrender.com"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Authorization, Content-Type"
+
 </IfModule>
+
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
