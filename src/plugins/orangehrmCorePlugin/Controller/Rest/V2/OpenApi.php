@@ -102,7 +102,8 @@ use OpenApi\Annotations as OA;
  *             securityScheme="OAuth2",
  *             type="oauth2",
  *             @OA\Flow(
- *                 flow="password",
+ *                 flow="authorizationCode",
+ *                 authorizationUrl="/web/index.php/oauth2/authorize",
  *                 tokenUrl="/web/index.php/oauth2/token",
  *                 scopes={}
  *             )
