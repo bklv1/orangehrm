@@ -102,6 +102,12 @@ StateContainer::getInstance()->storeRegConsent(false);
 // ── Run installation ──────────────────────────────────────────────────────────
 $appSetupUtility = new AppSetupUtility();
 
+// Aiven MySQL enforces sql_require_primary_key=ON globally.
+// OrangeHRM's legacy schema has tables without PKs, so disable it for this session.
+echo "Disabling sql_require_primary_key for this session (Aiven compatibility)...\n";
+\OrangeHRM\Installer\Util\Connection::getConnection()
+    ->executeStatement('SET SESSION sql_require_primary_key = 0');
+
 echo "[1/3] Running migrations (this may take a few minutes over a remote DB)...\n";
 $appSetupUtility->runMigrations('3.3.3', Config::PRODUCT_VERSION);
 echo "[1/3] Migrations complete.\n";
