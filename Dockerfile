@@ -43,6 +43,12 @@ RUN { \
     echo 'opcache.enable_cli=1'; \
 } > /usr/local/etc/php/conf.d/opcache-recommended.ini
 
+RUN { \
+    echo 'max_execution_time=300'; \
+    echo 'max_input_time=300'; \
+    echo 'memory_limit=256M'; \
+} > /usr/local/etc/php/conf.d/ohrm-tuning.ini
+
 RUN a2enmod rewrite
 
 RUN chown -R www-data:www-data /var/www/html \
