@@ -83,7 +83,11 @@ class Doctrine
             'host' => $conf->getDbHost(),
             'port' => $conf->getDbPort(),
             'driver' => 'pdo_mysql',
-            'charset' => 'utf8mb4'
+            'charset' => 'utf8mb4',
+            'driverOptions' => [
+                \PDO::MYSQL_ATTR_SSL_CA => '/etc/ssl/certs/ca-certificates.crt',
+                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            ],
         ];
 
         self::$entityManager = EntityManager::create($connectionParams, $config);

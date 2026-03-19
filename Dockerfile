@@ -32,6 +32,7 @@ RUN curl -fSL -o /tmp/orangehrm.zip \
     && rm -f /tmp/orangehrm.zip
 
 COPY src/ /var/www/html/src/
+COPY installer/ /var/www/html/installer/
 
 RUN { \
     echo 'opcache.memory_consumption=128'; \
@@ -51,4 +52,8 @@ RUN chown -R www-data:www-data /var/www/html \
        /var/www/html/src/log \
        /var/www/html/src/config
 
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 EXPOSE 80
+ENTRYPOINT ["docker-entrypoint.sh"]

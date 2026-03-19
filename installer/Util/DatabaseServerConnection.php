@@ -39,7 +39,11 @@ class DatabaseServerConnection
             'host' => $dbInfo[StateContainer::DB_HOST],
             'port' => $dbInfo[StateContainer::DB_PORT],
             'driver' => 'pdo_mysql',
-            'charset' => 'utf8mb4'
+            'charset' => 'utf8mb4',
+            'driverOptions' => [
+                \PDO::MYSQL_ATTR_SSL_CA => '/etc/ssl/certs/ca-certificates.crt',
+                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            ],
         ];
         self::$connection = DriverManager::getConnection($connectionParams);
         self::$connection->getDatabasePlatform()->registerDoctrineTypeMapping('enum', Types::STRING);
