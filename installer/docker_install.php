@@ -2,25 +2,13 @@
 /**
  * Non-interactive CLI installer for Docker / Render deployments.
  * Reads all configuration from environment variables.
- *
- * Required env vars:
- *   ORANGEHRM_DATABASE_HOST, ORANGEHRM_DATABASE_PORT,
- *   ORANGEHRM_DATABASE_NAME, ORANGEHRM_DATABASE_USER,
- *   ORANGEHRM_DATABASE_PASSWORD
- *
- * Optional env vars (defaults shown):
- *   ORANGEHRM_ADMIN_USERNAME   (Admin)
- *   ORANGEHRM_ADMIN_PASSWORD   (Admin1234!)
- *   ORANGEHRM_ADMIN_FIRSTNAME  (OrangeHRM)
- *   ORANGEHRM_ADMIN_LASTNAME   (Admin)
- *   ORANGEHRM_ADMIN_EMAIL      (admin@example.com)
- *   ORANGEHRM_ORG_NAME         (OrangeHRM)
- *   ORANGEHRM_ORG_COUNTRY      (US)
+ * Drops any partial tables before running so failed previous attempts
+ * do not leave the DB in a broken state.
  */
 
 $pathToAutoload = realpath(__DIR__ . '/../src/vendor/autoload.php');
 if (!$pathToAutoload) {
-    echo "Cannot find composer dependencies (src/vendor/autoload.php).\n";
+    echo "Cannot find src/vendor/autoload.php\n";
     exit(1);
 }
 require_once $pathToAutoload;
@@ -43,11 +31,6 @@ $session = new Session($sessionStorage);
 $session->start();
 ServiceContainer::getContainer()->set(Services::SESSION, $session);
 
-if (Config::isInstalled()) {
-    echo "Already installed — nothing to do.\n";
-    exit(0);
-}
-
 // ── Read env vars ─────────────────────────────────────────────────────────────
 $dbHost     = getenv('ORANGEHRM_DATABASE_HOST');
 $dbPort     = getenv('ORANGEHRM_DATABASE_PORT') ?: '3306';
@@ -68,6 +51,36 @@ if (!$dbHost || !$dbName || !$dbUser) {
     exit(1);
 }
 
+// ── Drop any partial tables so broken previous attempts don't block us ────────
+echo "Checking for existing tables...\n";
+try {
+    $pdo = new PDO(
+        "mysql:host={$dbHost};port={$dbPort};dbname={$dbName}",
+        $dbUser,
+        $dbPassword,
+        [
+            PDO::MYSQL_ATTR_SSL_CA             => '/etc/ssl/certs/ca-certificates.crt',
+            PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            PDO::ATTR_ERRMODE                  => PDO::ERRMODE_EXCEPTION,
+        ]
+    );
+
+    $tables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+    if (!empty($tables)) {
+        echo "Found " . count($tables) . " existing table(s) — dropping for clean install...\n";
+        $pdo->exec("SET FOREIGN_KEY_CHECKS=0");
+        foreach ($tables as $table) {
+            $pdo->exec("DROP TABLE IF EXISTS `$table`");
+        }
+        $pdo->exec("SET FOREIGN_KEY_CHECKS=1");
+        echo "All tables dropped.\n";
+    } else {
+        echo "Database is empty — proceeding with fresh install.\n";
+    }
+} catch (Throwable $e) {
+    echo "Warning during table cleanup: " . $e->getMessage() . "\n";
+}
+
 // ── Populate StateContainer (existing-database mode) ─────────────────────────
 StateContainer::getInstance()->storeDbInfo(
     $dbHost,
@@ -76,9 +89,7 @@ StateContainer::getInstance()->storeDbInfo(
     $dbName
 );
 StateContainer::getInstance()->setDbType(AppSetupUtility::INSTALLATION_DB_TYPE_EXISTING);
-
 StateContainer::getInstance()->storeInstanceData($orgName, $orgCountry, null, null);
-
 StateContainer::getInstance()->storeAdminUserData(
     $adminFirstName,
     $adminLastName,
@@ -91,24 +102,16 @@ StateContainer::getInstance()->storeRegConsent(false);
 // ── Run installation ──────────────────────────────────────────────────────────
 $appSetupUtility = new AppSetupUtility();
 
-echo "[1/4] Running migrations (this may take a few minutes)...\n";
+echo "[1/3] Running migrations (this may take a few minutes over a remote DB)...\n";
 $appSetupUtility->runMigrations('3.3.3', Config::PRODUCT_VERSION);
-echo "[1/4] Migrations complete.\n";
+echo "[1/3] Migrations complete.\n";
 
-echo "[2/4] Inserting system configuration...\n";
+echo "[2/3] Inserting system configuration and admin user...\n";
 $appSetupUtility->insertSystemConfiguration();
-echo "[2/4] Done.\n";
+echo "[2/3] Done.\n";
 
-echo "[3/4] Creating OrangeHRM DB user (skipped for existing-DB mode)...\n";
-try {
-    $appSetupUtility->createDBUser();
-    echo "[3/4] Done.\n";
-} catch (Throwable $e) {
-    echo "[3/4] Skipped: " . $e->getMessage() . "\n";
-}
-
-echo "[4/4] Writing configuration file...\n";
+echo "[3/3] Writing Conf.php...\n";
 $appSetupUtility->writeConfFile();
-echo "[4/4] Done.\n";
+echo "[3/3] Done.\n";
 
-echo "\nInstallation complete! Admin login: {$adminUsername} / {$adminPassword}\n";
+echo "\nInstallation complete. Login: {$adminUsername} / {$adminPassword}\n";
