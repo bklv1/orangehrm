@@ -26,7 +26,91 @@ use OrangeHRM\Core\Api\V2\Validator\Rule;
 use OrangeHRM\Core\Api\V2\Validator\Rules;
 use OrangeHRM\Core\Api\V2\Validator\ValidatorException;
 use OrangeHRM\Time\Api\ValidationRules\TimesheetDateRule;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Get(
+ *     path="/api/v2/time/timesheets",
+ *     tags={"Time/My Timesheet"},
+ *     summary="List My Timesheets",
+ *     operationId="list-my-timesheets",
+ *     @OA\Parameter(
+ *         name="fromDate",
+ *         in="query",
+ *         required=false,
+ *         @OA\Schema(type="string", format="date-time")
+ *     ),
+ *     @OA\Parameter(
+ *         name="toDate",
+ *         in="query",
+ *         required=false,
+ *         @OA\Schema(type="string", format="date-time")
+ *     ),
+ *     @OA\Parameter(ref="#/components/parameters/sortOrder"),
+ *     @OA\Parameter(ref="#/components/parameters/limit"),
+ *     @OA\Parameter(ref="#/components/parameters/offset"),
+ *     @OA\Response(
+ *         response="200",
+ *         description="Success",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="data",
+ *                 type="array",
+ *                 @OA\Items(ref="#/components/schemas/Time-TimesheetModel")
+ *             ),
+ *             @OA\Property(property="meta", type="object",
+ *                 @OA\Property(property="total", type="integer")
+ *             )
+ *         )
+ *     )
+ * )
+ * @OA\Post(
+ *     path="/api/v2/time/timesheets",
+ *     tags={"Time/My Timesheet"},
+ *     summary="Create My Timesheet",
+ *     operationId="create-my-timesheet",
+ *     @OA\RequestBody(
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="date", type="string", format="date"),
+ *             required={"date"}
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response="200",
+ *         description="Success",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="data", ref="#/components/schemas/Time-TimesheetModel"),
+ *             @OA\Property(property="meta", type="object")
+ *         )
+ *     )
+ * )
+ * @OA\Put(
+ *     path="/api/v2/time/timesheets/{id}",
+ *     tags={"Time/My Timesheet"},
+ *     summary="Update My Timesheet",
+ *     operationId="update-my-timesheet",
+ *     @OA\PathParameter(
+ *         name="id",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\RequestBody(
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="action", type="string"),
+ *             @OA\Property(property="comment", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response="200",
+ *         description="Success",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="data", ref="#/components/schemas/Time-TimesheetModel"),
+ *             @OA\Property(property="meta", type="object")
+ *         )
+ *     )
+ * )
+ */
 class MyTimesheetAPI extends EmployeeTimesheetAPI
 {
     /**

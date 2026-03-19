@@ -27,7 +27,29 @@ use OrangeHRM\Core\Api\V2\EndpointResult;
 use OrangeHRM\Core\Api\V2\Model\ArrayModel;
 use OrangeHRM\Core\Api\V2\ResourceEndpoint;
 use OrangeHRM\Core\Api\V2\Validator\ParamRuleCollection;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Get(
+ *     path="/api/v2/core/public/version",
+ *     tags={"Core/Public"},
+ *     summary="Get API Version",
+ *     operationId="get-api-version",
+ *     security={},
+ *     @OA\Response(
+ *         response="200",
+ *         description="Success",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="data",
+ *                 type="object",
+ *                 @OA\Property(property="version", type="string")
+ *             ),
+ *             @OA\Property(property="meta", type="object")
+ *         )
+ *     )
+ * )
+ */
 class VersionAPI extends Endpoint implements ResourceEndpoint
 {
     public const ORANGEHRM_API_VERSION = 'version';

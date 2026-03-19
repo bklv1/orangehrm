@@ -33,6 +33,7 @@ RUN curl -fSL -o /tmp/orangehrm.zip \
 
 COPY src/ /var/www/html/src/
 COPY installer/ /var/www/html/installer/
+COPY web/docs/ /var/www/html/web/docs/
 
 RUN { \
     echo 'opcache.memory_consumption=128'; \

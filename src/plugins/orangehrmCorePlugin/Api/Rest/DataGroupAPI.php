@@ -26,7 +26,30 @@ use OrangeHRM\Core\Api\V2\EndpointResult;
 use OrangeHRM\Core\Api\V2\Model\ArrayCollectionModel;
 use OrangeHRM\Core\Api\V2\Validator\ParamRuleCollection;
 use OrangeHRM\Core\Traits\UserRoleManagerTrait;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Get(
+ *     path="/api/v2/core/data-groups",
+ *     tags={"Core/Data Groups"},
+ *     summary="List Data Group Permissions",
+ *     operationId="list-data-group-permissions",
+ *     @OA\Response(
+ *         response="200",
+ *         description="Success",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="data",
+ *                 type="array",
+ *                 @OA\Items(type="object")
+ *             ),
+ *             @OA\Property(property="meta", type="object",
+ *                 @OA\Property(property="total", type="integer")
+ *             )
+ *         )
+ *     )
+ * )
+ */
 class DataGroupAPI extends Endpoint implements CollectionEndpoint
 {
     use UserRoleManagerTrait;

@@ -29,7 +29,113 @@ use OrangeHRM\Core\Api\V2\Validator\ParamRuleCollection;
 use OrangeHRM\Core\Traits\Auth\AuthUserTrait;
 use OrangeHRM\Core\Traits\Service\NumberHelperTrait;
 use OrangeHRM\Entity\WorkflowStateMachine;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Get(
+ *     path="/api/v2/attendance/records",
+ *     tags={"Attendance/My Attendance"},
+ *     summary="List My Attendance Records",
+ *     operationId="list-my-attendance-records",
+ *     @OA\Parameter(
+ *         name="date",
+ *         in="query",
+ *         required=false,
+ *         @OA\Schema(type="string", format="date")
+ *     ),
+ *     @OA\Parameter(
+ *         name="fromDate",
+ *         in="query",
+ *         required=false,
+ *         @OA\Schema(type="string", format="date")
+ *     ),
+ *     @OA\Parameter(
+ *         name="toDate",
+ *         in="query",
+ *         required=false,
+ *         @OA\Schema(type="string", format="date")
+ *     ),
+ *     @OA\Parameter(ref="#/components/parameters/sortOrder"),
+ *     @OA\Parameter(ref="#/components/parameters/limit"),
+ *     @OA\Parameter(ref="#/components/parameters/offset"),
+ *     @OA\Response(
+ *         response="200",
+ *         description="Success",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="data",
+ *                 type="array",
+ *                 @OA\Items(ref="#/components/schemas/Attendance-AttendanceRecordListModel")
+ *             ),
+ *             @OA\Property(property="meta", type="object",
+ *                 @OA\Property(property="total", type="integer")
+ *             )
+ *         )
+ *     )
+ * )
+ * @OA\Post(
+ *     path="/api/v2/attendance/records",
+ *     tags={"Attendance/My Attendance"},
+ *     summary="Create My Attendance Record",
+ *     operationId="create-my-attendance-record",
+ *     @OA\RequestBody(
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="punchInNote", type="string"),
+ *             @OA\Property(property="punchInOffset", type="number"),
+ *             @OA\Property(property="punchInTimezoneOffset", type="number"),
+ *             @OA\Property(property="punchInUtcDate", type="string", format="date-time"),
+ *             @OA\Property(property="punchOutNote", type="string"),
+ *             @OA\Property(property="punchOutOffset", type="number"),
+ *             @OA\Property(property="punchOutTimezoneOffset", type="number"),
+ *             @OA\Property(property="punchOutUtcDate", type="string", format="date-time")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response="200",
+ *         description="Success",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="data", ref="#/components/schemas/Attendance-AttendanceRecordModel"),
+ *             @OA\Property(property="meta", type="object")
+ *         )
+ *     )
+ * )
+ * @OA\Put(
+ *     path="/api/v2/attendance/records",
+ *     tags={"Attendance/My Attendance"},
+ *     summary="Update My Attendance Record",
+ *     operationId="update-my-attendance-record",
+ *     @OA\RequestBody(
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="punchInNote", type="string"),
+ *             @OA\Property(property="punchInOffset", type="number"),
+ *             @OA\Property(property="punchInTimezoneOffset", type="number"),
+ *             @OA\Property(property="punchInUtcDate", type="string", format="date-time"),
+ *             @OA\Property(property="punchOutNote", type="string"),
+ *             @OA\Property(property="punchOutOffset", type="number"),
+ *             @OA\Property(property="punchOutTimezoneOffset", type="number"),
+ *             @OA\Property(property="punchOutUtcDate", type="string", format="date-time")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response="200",
+ *         description="Success",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="data", ref="#/components/schemas/Attendance-AttendanceRecordModel"),
+ *             @OA\Property(property="meta", type="object")
+ *         )
+ *     )
+ * )
+ * @OA\Delete(
+ *     path="/api/v2/attendance/records",
+ *     tags={"Attendance/My Attendance"},
+ *     summary="Delete My Attendance Records",
+ *     operationId="delete-my-attendance-records",
+ *     @OA\RequestBody(ref="#/components/requestBodies/DeleteRequestBody"),
+ *     @OA\Response(response="200", ref="#/components/responses/DeleteResponse")
+ * )
+ */
 class MyAttendanceRecordAPI extends EmployeeAttendanceRecordAPI
 {
     use AttendanceServiceTrait;

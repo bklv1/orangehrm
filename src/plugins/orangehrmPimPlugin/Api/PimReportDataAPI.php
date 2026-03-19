@@ -28,7 +28,44 @@ use OrangeHRM\Core\Api\V2\Validator\Rule;
 use OrangeHRM\Core\Api\V2\Validator\Rules;
 use OrangeHRM\Core\Report\Api\EndpointAwareReport;
 use OrangeHRM\Core\Service\ReportGeneratorService;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Get(
+ *     path="/api/v2/pim/reports/data",
+ *     tags={"PIM/PIM Reports"},
+ *     summary="Get PIM Report Data",
+ *     operationId="get-pim-report-data",
+ *     @OA\Parameter(
+ *         name="name",
+ *         in="query",
+ *         required=true,
+ *         @OA\Schema(type="string", enum={"pim_defined"})
+ *     ),
+ *     @OA\Parameter(
+ *         name="reportId",
+ *         in="query",
+ *         required=true,
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Parameter(ref="#/components/parameters/limit"),
+ *     @OA\Parameter(ref="#/components/parameters/offset"),
+ *     @OA\Response(
+ *         response="200",
+ *         description="Success",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="data",
+ *                 type="array",
+ *                 @OA\Items(type="object")
+ *             ),
+ *             @OA\Property(property="meta", type="object",
+ *                 @OA\Property(property="total", type="integer")
+ *             )
+ *         )
+ *     )
+ * )
+ */
 class PimReportDataAPI extends ReportDataAPI
 {
     private ?ReportGeneratorService $reportGeneratorService = null;

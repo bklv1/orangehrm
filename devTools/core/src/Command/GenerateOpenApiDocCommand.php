@@ -88,6 +88,15 @@ class GenerateOpenApiDocCommand extends Command
         file_put_contents($uiFilePath, $swaggerUI);
 
         $io->success("File write to `$uiFilePath`");
+
+        $webDocsDir = Config::get(Config::BASE_DIR) . '/web/docs';
+        if (!is_dir($webDocsDir)) {
+            mkdir($webDocsDir, 0755, true);
+        }
+        $webDocsFilePath = $webDocsDir . '/index.html';
+        file_put_contents($webDocsFilePath, $swaggerUI);
+        $io->success("File write to `$webDocsFilePath`");
+
         return Command::SUCCESS;
     }
 }

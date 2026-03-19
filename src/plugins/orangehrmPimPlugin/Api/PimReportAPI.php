@@ -29,7 +29,36 @@ use OrangeHRM\Core\Api\V2\Validator\Rules;
 use OrangeHRM\Core\Report\Api\EndpointAwareReport;
 use OrangeHRM\Core\Service\ReportGeneratorService;
 use OrangeHRM\Pim\Report\PimReport;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Get(
+ *     path="/api/v2/pim/reports",
+ *     tags={"PIM/PIM Reports"},
+ *     summary="Get PIM Report Definition",
+ *     operationId="get-pim-report-definition",
+ *     @OA\Parameter(
+ *         name="name",
+ *         in="query",
+ *         required=true,
+ *         @OA\Schema(type="string", enum={"pim_defined"})
+ *     ),
+ *     @OA\Parameter(
+ *         name="reportId",
+ *         in="query",
+ *         required=true,
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response="200",
+ *         description="Success",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="data", type="object"),
+ *             @OA\Property(property="meta", type="object")
+ *         )
+ *     )
+ * )
+ */
 class PimReportAPI extends ReportAPI
 {
     public const PARAMETER_REPORT_ID = 'reportId';

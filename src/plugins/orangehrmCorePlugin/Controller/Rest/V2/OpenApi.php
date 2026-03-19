@@ -103,8 +103,8 @@ use OpenApi\Annotations as OA;
  *             type="oauth2",
  *             @OA\Flow(
  *                 flow="authorizationCode",
- *                 authorizationUrl="https://opensource-demo.orangehrmlive.com/web/index.php/oauth2/authorize",
- *                 tokenUrl="https://opensource-demo.orangehrmlive.com/web/index.php/oauth2/token",
+ *                 authorizationUrl="/web/index.php/oauth2/authorize",
+ *                 tokenUrl="/web/index.php/oauth2/token",
  *                 scopes={}
  *             )
  *         )
@@ -114,15 +114,7 @@ use OpenApi\Annotations as OA;
  *     title="OrangeHRM Open Source : REST API v2 docs",
  *     version=\OrangeHRM\Config\Config::ORANGEHRM_API_VERSION,
  * )
- * @OA\Server(
- *     url="{orangehrm-url}",
- *     variables={
- *         @OA\ServerVariable(
- *             serverVariable="orangehrm-url",
- *             default="opensource-demo.orangehrmlive.com/web/index.php"
- *         )
- *     }
- * )
+ * @OA\Server(url="/web/index.php")
  *
  */
 final class OpenApi

@@ -31,7 +31,14 @@ use OrangeHRM\Core\Api\V2\Validator\Rules;
 use OrangeHRM\Core\Report\Api\EndpointAwareReport;
 use OrangeHRM\Core\Report\Api\EndpointProxy;
 use OrangeHRM\Core\Traits\ValidatorTrait;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Schema(schema="Core-ReportData", type="object",
+ *     @OA\Property(property="data", type="array", @OA\Items(type="object")),
+ *     @OA\Property(property="meta", type="object")
+ * )
+ */
 abstract class ReportDataAPI extends EndpointProxy implements CollectionEndpoint
 {
     use ValidatorTrait;

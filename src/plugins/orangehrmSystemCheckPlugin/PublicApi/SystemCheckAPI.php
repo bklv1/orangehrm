@@ -31,8 +31,34 @@ use OrangeHRM\Core\Traits\LoggerTrait;
 use OrangeHRM\Core\Traits\ORM\EntityManagerTrait;
 use OrangeHRM\Core\Traits\Service\ConfigServiceTrait;
 use OrangeHRM\Installer\Util\SystemCheck;
+use OpenApi\Annotations as OA;
 use Throwable;
 
+/**
+ * @OA\Get(
+ *     path="/api/v2/core/system-check",
+ *     tags={"Core/Public"},
+ *     summary="Get System Check Results",
+ *     operationId="get-system-check-results",
+ *     security={},
+ *     @OA\Response(
+ *         response="200",
+ *         description="Success",
+ *         @OA\JsonContent(
+ *             @OA\Property(
+ *                 property="data",
+ *                 type="array",
+ *                 @OA\Items(type="object")
+ *             ),
+ *             @OA\Property(
+ *                 property="meta",
+ *                 type="object",
+ *                 @OA\Property(property="isInterrupted", type="boolean")
+ *             )
+ *         )
+ *     )
+ * )
+ */
 class SystemCheckAPI extends Endpoint implements ResourceEndpoint
 {
     use EntityManagerTrait;

@@ -31,7 +31,14 @@ use OrangeHRM\Core\Api\V2\Validator\Rule;
 use OrangeHRM\Core\Api\V2\Validator\Rules;
 use OrangeHRM\Core\Report\Api\EndpointAwareReport;
 use OrangeHRM\Core\Report\Api\EndpointProxy;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Schema(schema="Core-ReportDefinition", type="object",
+ *     @OA\Property(property="headers", type="array", @OA\Items(type="object")),
+ *     @OA\Property(property="filters", type="array", @OA\Items(type="object"))
+ * )
+ */
 abstract class ReportAPI extends EndpointProxy implements ResourceEndpoint
 {
     public const PARAMETER_NAME = 'name';
