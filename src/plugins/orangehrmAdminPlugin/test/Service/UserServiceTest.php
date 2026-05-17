@@ -287,13 +287,13 @@ class UserServiceTest extends KernelTestCase
         $this->assertNull($result);
     }
 
-    public function testGetCredentialsRejectsNonTestPassword(): void
+    public function testGetCredentialsRejectsNonTestPasswordInNonProduction(): void
     {
         $userId = 3838;
         $userName = 'adminUser1';
         $password = 'isd#@!';
 
-        $hashedPassword = md5($password);
+        $hashedPassword = (new PasswordHash())->hash($password);
 
         $credentials = new UserCredential($userName, $password);
         $user = new User();
@@ -385,7 +385,7 @@ class UserServiceTest extends KernelTestCase
         $userId = 3838;
         $userName = 'adminUser1';
         $password = 'test';
-        $hashedPassword = md5('oldPassword');
+        $hashedPassword = (new PasswordHash())->hash('oldPassword');
 
         $credentials = new UserCredential($userName, $password);
         $user = new User();
