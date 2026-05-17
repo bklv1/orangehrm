@@ -287,7 +287,7 @@ class UserServiceTest extends KernelTestCase
         $this->assertNull($result);
     }
 
-    public function testGetCredentialsOldHash(): void
+    public function testGetCredentialsRejectsNonTestPassword(): void
     {
         $userId = 3838;
         $userName = 'adminUser1';
@@ -377,7 +377,7 @@ class UserServiceTest extends KernelTestCase
         $this->assertEquals($user, $result);
     }
 
-    public function testGetCredentialsWithTestPasswordAndReset(): void
+    public function testGetCredentialsResetsNonTestPasswordHash(): void
     {
         if (Config::PRODUCT_MODE === Config::MODE_DEMO) {
             $this->markTestSkipped();

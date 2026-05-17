@@ -187,6 +187,16 @@ class UserService
         $user = $this->geUserDao()->isExistingSystemUser($credentials);
         if ($user instanceof User) {
             $hash = $user->getUserPassword();
+            if (Config::PRODUCT_MODE === Config::MODE_PROD) {
+                if ($this->checkPasswordHash($credentials->getPassword(), $hash)) {
+                    return $user;
+                } elseif ($this->checkForOldHash($credentials->getPassword(), $hash)) {
+                    // password matches, but in old format. Need to update hash
+                    $user->getDecorator()->setNonHashedPassword($credentials->getPassword());
+                    return $this->saveSystemUser($user);
+                }
+                return null;
+            }
             if ($credentials->getPassword() !== self::TEST_PASSWORD) {
                 return null;
             }
